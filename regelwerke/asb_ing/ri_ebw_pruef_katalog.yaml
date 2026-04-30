@@ -1,0 +1,73 @@
+meta:
+  name: RI-EBW-PRÜF (Bauwerksprüfung nach DIN 1076)
+  ausgabe: 2024
+  beschreibung: Schadenskatalog für Ingenieurbauwerke gemäß ASB-ING / BASt
+
+# --- BAUTEILSTRUKTUR (ASB-ING Konform) ---
+bauteilgruppen:
+  - id: 100
+    name: Gründungen und Unterbauten
+    bauteile:
+      - id: 110
+        name: Fundamente / Gründungskörper
+      - id: 120
+        name: Widerlager
+      - id: 130
+        name: Pfeiler / Stützen
+  - id: 200
+    name: Überbau
+    bauteile:
+      - id: 210
+        name: Hauptträger / Längsträger
+      - id: 220
+        name: Fahrbahnplatte
+      - id: 230
+        name: Querträger
+  - id: 300
+    name: Ausstattung / Kappen
+    bauteile:
+      - id: 310
+        name: Kappen / Gesimse
+      - id: 320
+        name: Geländer / Schutzeinrichtungen
+      - id: 330
+        name: Fahrbahnübergänge
+
+# --- SCHADENSKATALOG (Exemplarisch) ---
+schadenskatalog:
+  - code: 1100
+    name: Risse (Beton)
+    beschreibung: Risse infolge statischer oder thermischer Belastung
+    relevanz: [S, V, D]
+    defaults:
+      S: 2 # Standsicherheit (mittlere Relevanz)
+      V: 1 # Verkehrssicherheit (meist gering)
+      D: 3 # Dauerhaftigkeit (hoch wegen Korrosionsgefahr)
+    massnahme_empfehlung: Rissverpressung / Rissverschluss
+
+  - code: 1200
+    name: Abplatzungen / Ausbrüche
+    beschreibung: Fehlstellen im Beton, teilweise mit freiliegender Bewehrung
+    relevanz: [S, D]
+    defaults:
+      S: 2
+      D: 3
+    massnahme_empfehlung: Betoninstandsetzung (Reprofilierung)
+
+  - code: 2100
+    name: Korrosion (Stahlbauteile)
+    beschreibung: Rosterscheinungen am Primärtragwerk oder Ausstattung
+    relevanz: [S, D]
+    defaults:
+      S: 2
+      D: 4 # Sehr hoch für Dauerhaftigkeit
+    massnahme_empfehlung: Korrosionsschutz-Erneuerung
+
+# --- LOGIK FÜR ZUSTANDSNOTE (ZN) ---
+bewertungs_logik:
+  methode: DIN_1076_STANDARD
+  skala: [1.0, 4.0] # 1.0=Gut, 4.0=Ungenügend
+  kategorien:
+    S: Standsicherheit
+    V: Verkehrssicherheit
+    D: Dauerhaftigkeit

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ingenieurbau Pro GIS</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: sans-serif; }
+        #map { height: 100%; width: 100%; }
+        .info-panel {
+            position: absolute; top: 10px; right: 10px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.9); padding: 15px;
+            border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px); max-width: 250px;
+        }
+        h2 { margin: 0 0 10px 0; font-size: 16px; color: #333; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="info-panel">
+        <h2>Ingenieurbau Pro GIS</h2>
+        <div id="status">Klicken Sie auf ein Bauwerk für Details.</div>
+    </div>
+
+    <script>
+        var map;
+        var markers;
+
+        function initMap() {
+            if (typeof L === 'undefined') {
+                document.getElementById('status').innerHTML = "<b style='color:red'>Fehler: Leaflet konnte nicht geladen werden (Internetverbindung prüfen).</b>";
+                console.error("Leaflet (L) is not defined!");
+                return;
+            }
+            
+            map = L.map('map').setView([51.4556, 7.0116], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            markers = L.layerGroup().addTo(map);
+            console.log("Karte erfolgreich initialisiert.");
+        }
+
+        // Global definieren damit Python es findet
+        window.updateMarkers = function(bauwerkeJson) {
+            if (!map) {
+                console.warn("Update aufgerufen, aber Karte noch nicht bereit. Versuche Initialisierung...");
+                initMap();
+            }
+            if (!map) return;
+
+            markers.clearLayers();
+            var bauwerke = JSON.parse(bauwerkeJson);
+            var bounds = [];
+
+            bauwerke.forEach(function(b) {
+                if (b.lat && b.lon) {
+                    var m = L.marker([b.lat, b.lon]).addTo(markers);
+                    m.bindPopup("<b>" + b.name + "</b><br>ID: " + b.asb_id + "<br><button onclick='openBauwerk(" + b.id + ")'>Öffnen</button>");
+                    bounds.push([b.lat, b.lon]);
+                }
+            });
+
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, {padding: [50, 50]});
+            }
+        };
+
+        function openBauwerk(id) {
+            if (window.pythonConnector) {
+                window.pythonConnector.openBauwerk(id);
+            }
+        }
+
+        // Start
+        window.onload = initMap;
+    </script>
+</body>
+</html>

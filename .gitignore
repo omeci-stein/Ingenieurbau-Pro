@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.vscode/
+netsanpro.db
+V195-Dateien/
